@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pydaraja"
-version = "0.0.1"
+version = "0.1"
 authors = [
   { name="Raymond Kipkorir", email="raykipkorir02@gmail.com" },
 ]
