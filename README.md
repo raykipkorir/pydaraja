@@ -1,7 +1,7 @@
 # pydaraja
 
 ## Description
-This is a python wrapper that handles payment requests through th Daraja Mpesa API.
+This is a python wrapper that handles payment requests through the Daraja Mpesa API.
 
 Daraja API services offered by pydaraja are:
 - Lipa na M-PESA online API also known as M-PESA express (STK Push/NI push)
