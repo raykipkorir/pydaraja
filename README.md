@@ -5,7 +5,7 @@ This is a python wrapper that handles payment requests through th Daraja Mpesa A
 
 Daraja API services offered by pydaraja are:
 - Lipa na M-PESA online API also known as M-PESA express (STK Push/NI push)
-- STK push query API -> Used to check the status Lipa na Mpesa online payment
+- STK push query API -> Used to check the status of Lipa na Mpesa online payment
 
 More services will come soon.
 
