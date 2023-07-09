@@ -29,6 +29,11 @@ payment.TRANSACTION_DESC = "YOUR_TRANSACTION_DESCRIPTION"
 
 response = payment.trigger_stk_push(phone_number="+254700000000", amount=1)
 print(response.json())
+
+# use checkout_request_id from the above stk push as parameter for the function below
+stk_query = payment.query_stk_push(your_checkout_request_id)
+print(stk_query.json())
+
 ```
 
 ## Contribute
