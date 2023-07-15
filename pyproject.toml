@@ -5,18 +5,33 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pydaraja"
-version = "0.1.2"
+version = "0.2.0"
+description = "Python wrapper for Mpesa's Daraja API"
+license = "MIT"
 authors = [
-  { name="Raymond Kipkorir", email="raykipkorir02@gmail.com" },
+  {name = "Raymond Kipkorir", email = "raykipkorir02@gmail.com" }
 ]
-description = "Python wrapper for Mpesa Daraja API"
+maintainers = [
+  {name = "Raymond Kipkorir", email = "raykipkorir02@gmail.com" }
+]
+
 readme = "README.md"
-requires-python = ">=3.10"
+
+requires-python = ">=3.7"
+
 classifiers = [
-    "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
 ]
+
 dependencies = [
     "requests>=2.31.0"
 ]

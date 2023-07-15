@@ -41,4 +41,4 @@ This project follows the [PEP8](https://peps.python.org/pep-0008/) style guide.
 Ensure your code adheres to the PEP8 style guide
 
 ## Code of Conduct
-Read [CODE_OF_CONDUCT.md](https://github.com/raykipkorir/pydaraja/blob/main/CODE_OF_CONDUCT.md)
+Refer [CODE_OF_CONDUCT.md](https://github.com/raykipkorir/pydaraja/blob/main/CODE_OF_CONDUCT.md)
