@@ -6,7 +6,7 @@ from datetime import datetime
 
 import requests
 
-from pydaraja import payment
+from pydaraja import config
 
 
 def _generate_access_token() -> str:
@@ -14,7 +14,7 @@ def _generate_access_token() -> str:
     access_token_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
     response = requests.get(
         access_token_url,
-        auth=(payment.CONSUMER_KEY, payment.CONSUMER_SECRET),
+        auth=(config.CONSUMER_KEY, config.CONSUMER_SECRET),
         timeout=30,
     )
     access_token = response.json()["access_token"]
@@ -25,7 +25,7 @@ def _generate_password() -> str:
     """Generates mpesa api password using the provided shortcode and passkey"""
 
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    password_str = payment.BUSINESS_SHORTCODE + payment.PASSKEY + timestamp
+    password_str = config.BUSINESS_SHORTCODE + config.PASSKEY + timestamp
     password_bytes = password_str.encode("ascii")
     return base64.b64encode(password_bytes).decode("utf-8")
 
