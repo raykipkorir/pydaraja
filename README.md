@@ -22,7 +22,7 @@ pip install -U pydaraja
 1. Lipa na Mpesa Online API (STK push) and STK push query API.
 
 
-```
+```python
 from pydaraja import MpesaPaymentGateway
 
 # Create MpesaPaymentGateway instance
@@ -35,9 +35,10 @@ mpesa = MpesaPaymentGateway(
 )
 
 # Trigger STK push prompt
-response_data = mpesa.trigger_stk_push(phone_number="+254700000000", amount=1, callback_url="https://example.com")
+response = mpesa.trigger_stk_push(phone_number="+254700000000", amount=1, callback_url="https://example.com")
 
-Sample response
+print(response.json())
+# Output
 {
     'MerchantRequestID': '2654-4b64-97ff-b827b542881d164797',
     'CheckoutRequestID': 'ws_CO_18072024175449513769356298',
@@ -46,10 +47,12 @@ Sample response
     'CustomerMessage': 'Success. Request accepted for processing'
 }
 
-# use checkout_request_id from the above stk push as parameter for the function below
-response_data = mpesa.query_stk_push(checkout_request_id=your_checkout_request_id)
 
-Sample response
+# use checkout_request_id from the above stk push as parameter for the function below
+response = mpesa.query_stk_push(checkout_request_id=your_checkout_request_id)
+
+print(response.json())
+# Output
 {
     'ResponseCode': '0',
     'ResponseDescription': 'The service request has been accepted successsfully',
