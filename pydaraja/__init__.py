@@ -4,7 +4,7 @@ import base64
 import logging
 from datetime import datetime
 import time
-
+from requests import Response
 import requests
 
 from .exceptions import PaymentError
@@ -36,28 +36,22 @@ class MpesaPaymentGateway:
         self.business_shortcode = business_shortcode
         self.passkey = passkey
         self.endpoint = endpoint
-        self.access_token_url = (
+        self._access_token_url = (
             f"{self.endpoint}/oauth/v1/generate?grant_type=client_credentials"
         )
-        self.stk_push_url = f"{self.endpoint}/mpesa/stkpush/v1/processrequest"
-        self.query_stk_push_url = (
+        self._stk_push_url = f"{self.endpoint}/mpesa/stkpush/v1/processrequest"
+        self._query_stk_push_url = (
             f"{self.endpoint}/mpesa/stkpushquery/v1/query"  # noqa: E501
         )
-        self.transaction_status_url = (
-            f"{self.endpoint}/mpesa/transactionstatus/v1/query"
-        )
-        self.account_balance_url = (
-            f"{self.endpoint}/mpesa/accountbalance/v1/query"  # noqa: E501
-        )
-        self.access_token = None
-        self.access_token_expiration_time = time.time()
+        self._access_token = None
+        self._access_token_expiration_time = time.time()
 
-    def get_access_token(self) -> str:
+    def _get_access_token(self) -> str:
         """Generate an OAuth access token."""
-        if self.access_token_expiration_time < time.time():
-            LOGGER.info(f"Mpesa API Token request: {self.access_token_url}")
+        if self._access_token_expiration_time < time.time():
+            LOGGER.info(f"Mpesa API Token request: {self._access_token_url}")
             response = requests.get(
-                self.access_token_url,
+                self._access_token_url,
                 auth=(self.consumer_key, self.consumer_secret),
                 timeout=30,
             )
@@ -66,18 +60,18 @@ class MpesaPaymentGateway:
                 LOGGER.error(msg)
                 raise Exception(msg)
             access_token = response.json()["access_token"]
-            self.access_token_expiration_time = (
+            self._access_token_expiration_time = (
                 int(response.json()["expires_in"]) + time.time()
             )
         else:
-            access_token = self.access_token
+            access_token = self._access_token
         return access_token
 
     @authorize
-    def _make_request(self, *args, **kwargs):
+    def _make_request(self, *args, **kwargs) -> Response:
         kwargs["headers"] = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self._access_token}",
         }
         LOGGER.info(f"Mpesa API request: {kwargs['url']}")
         response = requests.post(*args, **kwargs, timeout=30)
@@ -100,7 +94,7 @@ class MpesaPaymentGateway:
                     message, extra={"status_code": response.status_code}
                 )  # noqa: E501
             raise PaymentError(message)
-        return data
+        return response
 
     def _generate_password(self):
         """Generates api password using the provided shortcode and passkey."""
@@ -145,7 +139,7 @@ class MpesaPaymentGateway:
             "TransactionDesc": transaction_desc,
         }
         return self._make_request(
-            url=self.stk_push_url, headers=headers, json=payload
+            url=self._stk_push_url, headers=headers, json=payload
         )  # noqa: E501
 
     def query_stk_push(self, checkout_request_id: str):
@@ -162,5 +156,5 @@ class MpesaPaymentGateway:
             "CheckoutRequestID": checkout_request_id,
         }
         return self._make_request(
-            url=self.query_stk_push_url, headers=headers, json=payload
+            url=self._query_stk_push_url, headers=headers, json=payload
         )

@@ -8,7 +8,7 @@ def authorize(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         self = args[0]
-        self.access_token = self.get_access_token()
+        self._access_token = self._get_access_token()
         response = func(*args, **kwargs)
         return response
 
