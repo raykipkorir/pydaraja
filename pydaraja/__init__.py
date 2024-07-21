@@ -2,18 +2,16 @@
 
 import base64
 import logging
-from datetime import datetime
 import time
-from requests import Response
-import requests
+from datetime import datetime
 
-from .exceptions import PaymentError
-from .utils import (
-    _format_phone_number,
-    _validate_amount,
-    _validate_phone_number,
-    authorize,
-)
+import requests
+from requests import ConnectionError, Response
+
+from .exceptions import InvalidUrlError
+from .utils import (_format_phone_number, _handle_access_token_response_errors,
+                    _handle_common_response_errors, _validate_amount,
+                    _validate_phone_number, authorize, retry_policy)
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
@@ -43,30 +41,29 @@ class MpesaPaymentGateway:
         self._query_stk_push_url = (
             f"{self.endpoint}/mpesa/stkpushquery/v1/query"  # noqa: E501
         )
-        self._access_token = None
         self._access_token_expiration_time = time.time()
+        self._access_token = self._get_access_token()
 
     def _get_access_token(self) -> str:
         """Generate an OAuth access token."""
         if self._access_token_expiration_time < time.time():
             LOGGER.info(f"Mpesa API Token request: {self._access_token_url}")
-            response = requests.get(
-                self._access_token_url,
-                auth=(self.consumer_key, self.consumer_secret),
-                timeout=30,
-            )
-            if not response.status_code == 200:
-                msg = f"Failed to get access token.Check parameters passed when instantiating {self.__class__.__name__}"  # noqa: E501
-                LOGGER.error(msg)
-                raise Exception(msg)
-            access_token = response.json()["access_token"]
-            self._access_token_expiration_time = (
-                int(response.json()["expires_in"]) + time.time()
-            )
+            try:
+                response = requests.get(
+                    self._access_token_url,
+                    auth=(self.consumer_key, self.consumer_secret),
+                    timeout=30,
+                )
+            except ConnectionError:
+                msg = "Provide a valid Daraja API endpoint."
+                raise InvalidUrlError(msg)
+            access_token = _handle_access_token_response_errors(self, response)
         else:
             access_token = self._access_token
+
         return access_token
 
+    @retry_policy()
     @authorize
     def _make_request(self, *args, **kwargs) -> Response:
         kwargs["headers"] = {
@@ -75,25 +72,7 @@ class MpesaPaymentGateway:
         }
         LOGGER.info(f"Mpesa API request: {kwargs['url']}")
         response = requests.post(*args, **kwargs, timeout=30)
-        data = response.json()
-        if 400 <= response.status_code <= 500:
-            LOGGER.debug(data)
-            message = "Mpesa error"
-            if response.status_code == 400:
-                error_data = response.json()
-                LOGGER.warning(
-                    message,
-                    extra={
-                        "response": error_data,
-                        "status_code": response.status_code,
-                    },
-                )
-                message = error_data.get("message", message)
-            else:
-                LOGGER.warning(
-                    message, extra={"status_code": response.status_code}
-                )  # noqa: E501
-            raise PaymentError(message)
+        _handle_common_response_errors(response)
         return response
 
     def _generate_password(self):
