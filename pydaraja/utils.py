@@ -33,7 +33,7 @@ def authorize(func):
     return wrapper
 
 
-def exponential_backoff_with_jitter(base_delay=1, max_delay=64, factor=2, jitter=0.1): 
+def exponential_backoff_with_jitter(base_delay=1, max_delay=64, factor=2, jitter=0.1):
     """Exponential backoff retry policy."""
     delay = base_delay
     while True:
