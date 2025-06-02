@@ -384,5 +384,6 @@ cython_debug/
 
 # Support for Project snippet scope
 !.vscode/*.code-snippets
+notes.txt
 
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,python,visualstudiocode
