@@ -9,9 +9,15 @@ import requests
 from requests import ConnectionError, Response
 
 from .exceptions import InvalidUrlError
-from .utils import (_format_phone_number, _handle_access_token_response_errors,
-                    _handle_common_response_errors, _validate_amount,
-                    _validate_phone_number, authorize, retry_policy)
+from .utils import (
+    _format_phone_number,
+    _handle_access_token_response_errors,
+    _handle_common_response_errors,
+    _validate_amount,
+    _validate_phone_number,
+    authorize,
+    retry_policy,
+)
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
@@ -38,9 +44,7 @@ class MpesaPaymentGateway:
             f"{self.endpoint}/oauth/v1/generate?grant_type=client_credentials"
         )
         self._stk_push_url = f"{self.endpoint}/mpesa/stkpush/v1/processrequest"
-        self._query_stk_push_url = (
-            f"{self.endpoint}/mpesa/stkpushquery/v1/query"  # noqa: E501
-        )
+        self._query_stk_push_url = f"{self.endpoint}/mpesa/stkpushquery/v1/query"  # noqa: E501
         self._access_token_expiration_time = time.time()
         self._access_token = self._get_access_token()
 
@@ -117,9 +121,7 @@ class MpesaPaymentGateway:
             "AccountReference": account_reference,
             "TransactionDesc": transaction_desc,
         }
-        return self._make_request(
-            url=self._stk_push_url, headers=headers, json=payload
-        )  # noqa: E501
+        return self._make_request(url=self._stk_push_url, headers=headers, json=payload)  # noqa: E501
 
     def query_stk_push(self, checkout_request_id: str):
         """
