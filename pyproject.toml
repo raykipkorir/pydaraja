@@ -14,6 +14,7 @@ maintainers = [
   {name = "Raymond Kipkorir", email = "hello@raykipkorir.com" }
 ]
 readme = "README.md"
+license = "MIT"
 license-files = ["LICENSE"]
 keywords = [
   "mpesa",
