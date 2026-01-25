@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pydaraja"
-version = "0.3.7"
+version = "1.0.0"
 description = "Python wrapper for Mpesa's Daraja API"
 authors = [
-  {name = "Raymond Kipkorir", email = "raykipkorir02@gmail.com" }
+  {name = "Raymond Kipkorir", email = "hello@raykipkorir.com" }
 ]
 maintainers = [
-  {name = "Raymond Kipkorir", email = "raykipkorir02@gmail.com" }
+  {name = "Raymond Kipkorir", email = "hello@raykipkorir.com" }
 ]
 readme = "README.md"
 license-files = ["LICENSE"]
@@ -19,15 +19,12 @@ keywords = [
   "mpesa",
   "daraja"
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.12"
 classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
 ]
 dependencies = [
@@ -37,12 +34,16 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pre-commit~=3.7.0",
-    "virtualenv~=20.23.1",
     "black~=23.3.0",
     "coverage~=7.6.0",
     "pytest~=8.3.1",
     "ruff~=0.11.12",
-    "pyright==1.1.401"
+    "pyright==1.1.401",
+]
+
+ci = [
+  "tox==4.34.1",
+  "tox-uv==1.29.0"
 ]
 
 [project.urls]

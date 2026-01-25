@@ -139,7 +139,7 @@ def _handle_access_token_response_errors(instance, response):
         raise ClientError(msg)
     else:
         # retry the current request if status code is above 500
-        current_func = inspect.currentframe().f_code
+        current_func = inspect.currentframe().f_code  # type: ignore
         retry_policy()(current_func)
 
 
