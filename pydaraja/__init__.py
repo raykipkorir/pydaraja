@@ -2,7 +2,6 @@
 
 import base64
 import logging
-import time
 from datetime import datetime
 
 import requests
@@ -15,7 +14,6 @@ from .utils import (
     _handle_common_response_errors,
     _validate_amount,
     _validate_phone_number,
-    authorize,
     retry_policy,
 )
 
@@ -33,42 +31,41 @@ class MpesaPaymentGateway:
         consumer_secret: str,
         business_shortcode: str,
         passkey: str,
-        endpoint: str,
+        api_host: str,
+        callback_url: str,
+        account_reference: str,
     ) -> None:
+        self.api_host = api_host
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.business_shortcode = business_shortcode
         self.passkey = passkey
-        self.endpoint = endpoint
+        self.callback_url = callback_url
+        self.account_reference = account_reference
         self._access_token_url = (
-            f"{self.endpoint}/oauth/v1/generate?grant_type=client_credentials"
+            f"{self.api_host}/oauth/v1/generate?grant_type=client_credentials"
         )
-        self._stk_push_url = f"{self.endpoint}/mpesa/stkpush/v1/processrequest"
-        self._query_stk_push_url = f"{self.endpoint}/mpesa/stkpushquery/v1/query"  # noqa: E501
-        self._access_token_expiration_time = time.time()
+        self._stk_push_url = f"{self.api_host}/mpesa/stkpush/v1/processrequest"
+        self._query_stk_push_url = f"{self.api_host}/mpesa/stkpushquery/v1/query"  # noqa: E501
         self._access_token = self._get_access_token()
 
     def _get_access_token(self) -> str:
         """Generate an OAuth access token."""
-        if self._access_token_expiration_time < time.time():
-            LOGGER.info(f"Mpesa API Token request: {self._access_token_url}")
-            try:
-                response = requests.get(
-                    self._access_token_url,
-                    auth=(self.consumer_key, self.consumer_secret),
-                    timeout=30,
-                )
-            except ConnectionError:
-                msg = "Provide a valid Daraja API endpoint."
-                raise InvalidUrlError(msg)
-            access_token = _handle_access_token_response_errors(self, response)
-        else:
-            access_token = self._access_token
+        LOGGER.info(f"Mpesa API Token request: {self._access_token_url}")
+        try:
+            response = requests.get(
+                self._access_token_url,
+                auth=(self.consumer_key, self.consumer_secret),
+                timeout=30,
+            )
+        except ConnectionError:
+            msg = "Provide a valid Daraja API endpoint."
+            raise InvalidUrlError(msg)
+        access_token = _handle_access_token_response_errors(self, response)
 
-        return access_token
+        return access_token  # type: ignore
 
     @retry_policy()
-    @authorize
     def _make_request(self, *args, **kwargs) -> Response:
         kwargs["headers"] = {
             "Content-Type": "application/json",
@@ -82,7 +79,7 @@ class MpesaPaymentGateway:
     def _generate_password(self):
         """Generates api password using the provided shortcode and passkey."""
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        password_str = self.business_shortcode + self.passkey + timestamp
+        password_str = str(self.business_shortcode) + self.passkey + timestamp
         password_bytes = password_str.encode("ascii")
         return base64.b64encode(password_bytes).decode("utf-8")
 
@@ -90,9 +87,7 @@ class MpesaPaymentGateway:
         self,
         phone_number: str,
         amount: int,
-        callback_url: str,
-        account_reference: str | None = None,
-        transaction_desc: str | None = None,
+        transaction_description: str | None = None,
     ):
         """Initiate a stk push prompt payment.
 
@@ -103,10 +98,10 @@ class MpesaPaymentGateway:
         _validate_phone_number(phone_number)
         phone_number = _format_phone_number(phone_number)
         _validate_amount(amount)
-        if account_reference is None:
-            account_reference = "Pydaraja"
-        if transaction_desc is None:
-            transaction_desc = "Python wrapper for mpesa api."
+        if transaction_description is None:
+            transaction_description = (
+                f"Business shortcode {self.business_shortcode} transaction"
+            )
         headers = {}
         payload = {
             "BusinessShortCode": self.business_shortcode,
@@ -117,9 +112,9 @@ class MpesaPaymentGateway:
             "PartyA": phone_number,
             "PartyB": self.business_shortcode,
             "PhoneNumber": phone_number,
-            "CallBackURL": callback_url,
-            "AccountReference": account_reference,
-            "TransactionDesc": transaction_desc,
+            "CallBackURL": self.callback_url,
+            "AccountReference": self.account_reference,
+            "TransactionDesc": transaction_description,
         }
         return self._make_request(url=self._stk_push_url, headers=headers, json=payload)  # noqa: E501
 

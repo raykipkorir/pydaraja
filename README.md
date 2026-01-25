@@ -27,15 +27,17 @@ from pydaraja import MpesaPaymentGateway
 
 # Create MpesaPaymentGateway instance
 mpesa = MpesaPaymentGateway(
+    api_host="https://sandbox.safaricom.co.ke",
     consumer_key="consumer_key",
     consumer_secret="consumer_secret",
     business_shortcode="business_shortcode",
     passkey="passkey"
-    endpoint="https://sandbox.safaricom.co.ke",
+    callback_url="your_callback_url"
+    account_reference="account_reference" # name of your business
 )
 
 # Trigger STK push prompt
-response = mpesa.trigger_stk_push(phone_number="+254700000000", amount=1, callback_url="https://example.com")
+response = mpesa.trigger_stk_push(phone_number="+254700000000", amount=1)
 
 print(response.json())
 # Output
@@ -62,6 +64,11 @@ print(response.json())
     'ResultDesc': 'The service request is processed successfully.'
  }
 ```
+
+## Daraja API Environments
+Sandbox(Test environment) - https://sandbox.safaricom.co.ke
+
+Production(Live environment for real transactions) - https://api.safaricom.co.ke
 
 ## Contributing
 To contribute to this project, we kindly request you to review the [CONTRIBUTING.md](https://github.com/raykipkorir/pydaraja/blob/main/CONTRIBUTING.md)  file for detailed guidelines.

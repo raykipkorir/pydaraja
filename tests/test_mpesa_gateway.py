@@ -25,11 +25,13 @@ class TestMpesaGateway(TestCase):
         mock_session.return_value = response
 
         self.mpesa = MpesaPaymentGateway(
+            api_host="https://daraja.com",
             consumer_key="RANDOMKEY240",
             consumer_secret="RANDOMSECRET2023048",
             business_shortcode="28930",
-            endpoint="https://daraja.com",
             passkey="aksfjkew9238923nma",
+            callback_url="https://callback.com",
+            account_reference="SAF",
         )
 
     @patch.object(Session, "request", autospec=True)
@@ -48,9 +50,7 @@ class TestMpesaGateway(TestCase):
         response.json = MagicMock(return_value=data)
         mock_session.return_value = response
 
-        response2 = self.mpesa.trigger_stk_push(
-            phone_number="0700000000", amount=1, callback_url="https://example.com"
-        )
+        response2 = self.mpesa.trigger_stk_push(phone_number="0700000000", amount=1)
 
         assert response2.status_code == 200
 
@@ -81,9 +81,11 @@ class TestMpesaGateway(TestCase):
         mock_session.side_effect = ConnectionError("Error.")
         with pytest.raises(InvalidUrlError):
             self.mpesa2 = MpesaPaymentGateway(
+                api_host="https:daraja.com",
                 consumer_key="RANDOMKEY240",
                 consumer_secret="RANDOMSECRET2023048",
                 business_shortcode="28930",
-                endpoint="https:daraja.com",
                 passkey="aksfjkew9238923nma",
+                callback_url="http://callback.com",
+                account_reference="SAF",
             )
